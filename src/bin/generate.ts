@@ -29,7 +29,7 @@ async function run() {
   const options = await setOptions();
 
   await generate({ url: options.u }).then((examples) => {
-    const basePath = "./cypress/fixtures";
+    const basePath = "./tests/api";
     if (fs.existsSync(basePath)) fs.rmSync(basePath, { recursive: true });
     for (const key in examples) {
       const example = examples[key];
