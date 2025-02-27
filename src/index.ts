@@ -18,7 +18,7 @@ async function generate({ url }: { url: string }) {
   } = {};
 
   for (const path in paths) {
-    const { parameters, ...methods } = paths[path];
+    const { parameters, ...methods } = paths[path] as { [key: string]: any };
     for (const method in methods) {
       const responses = methods[method].responses;
       for (const response in responses) {
@@ -49,6 +49,36 @@ async function generate({ url }: { url: string }) {
             }
           }
         }
+      }
+      const requestBody = methods[method].requestBody;
+      if (requestBody) {
+        const content = requestBody.content;
+        if (content) {
+          const json = content["application/json"];
+          if (json) {
+            const examples = json.examples;
+            if (examples) {
+              for (const key in examples) {
+                const example = examples[key];
+                if (example) {
+                  const value = example.value;
+                  if (value) {
+                    const name = `request_${method}${path
+                      .replace(/\//g, "_")
+                      .replace(/[{}]/g, "")}_${key}`;
+                    exampleList[name] = {
+                      code: "request",
+                      method: method.toLocaleUpperCase(),
+                      path,
+                      exampleName: key,
+                      content: value,
+                    };
+                  }
+                }
+              }
+            }
+          }
+      }
       }
     }
   }
